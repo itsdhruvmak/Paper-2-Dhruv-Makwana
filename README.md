@@ -1,0 +1,27 @@
+Tech Stack
+
+Node.js
+Express.js
+MongoDB (Mongoose)
+JWT Authentication
+
+Install dependencies:
+    npm install
+
+.env backend
+
+    PORT=8080
+    MONGO_URI=mongodb+srv://dhruvmak1144_db_user:JxzVvqkBWOOL0Bdu@cluster0.ng7swjw.mongodb.net/?appName=Cluster0
+
+    JWT_ACCESS_SECRET=15490257614df5cbc86990186322d06b49efa0ef3164673fe209a0088680a4e5b53ffa326e939169570a008d25e6c57cf37ed3224310e1b34107ef35d352473b
+    JWT_REFRESH_EXPIRES=7d
+
+.env frontend
+
+    VITE_API_URL:"http://localhost:8080/api"
+
+Start server
+    npm run dev
+
+API Configuration
+    Authorization: Bearer <refresh_token>
