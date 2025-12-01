@@ -25,3 +25,37 @@ Start server
 
 API Configuration
     Authorization: Bearer <refresh_token>
+
+Roles 
+    Admin → can add, edit, delete books
+    User → can borrow and return books
+
+Auth Routes
+    POST api/auth/signup
+    POST api/auth/login
+
+Book Routes
+    POST api/book/add-book
+    PUT api/book/update/:id
+    DELETE api/book/delete/:id
+    GET api/book/all-books
+    GET api/book/get-book/:id
+
+Borrowing System
+    POST api/borrow/borrow-book/:id
+    POST api/borrow/return-book/:id
+
+
+
+Challenges I faced:-
+
+    1. Time management:-
+        The biggest challenge during this project was managing time while completing all backend and frontend requirements.
+
+    2. Confusion About Schema Count:-
+        I was confused about how many schemas the project really needed.I wasn’t sure if I should create separate schemas for genres or borrowing, or keep everything inside the book model.
+
+        After understanding the requirements, i came to the decision as 3 schemas would be better at here:
+            User Schema
+            Book Schema
+            Borrow Schema
