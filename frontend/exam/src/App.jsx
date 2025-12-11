@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import AuthScreens from './pages/authScreens'
+import AuthScreens from './pages/AuthScreens'
 import Book from './pages/Book'
 import ProtectedRoute from './utils/protectedRoute'
 import Layout from './pages/Layout'
