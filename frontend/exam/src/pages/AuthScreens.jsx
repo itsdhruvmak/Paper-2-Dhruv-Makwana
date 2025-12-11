@@ -26,6 +26,7 @@ const AuthScreens = () => {
     const handleSubmit = async (values) => {
         try {
             let data;
+            console.log("Submit values:", values);
 
             if (activeTab === "login") {
                 data = await loginUser(values.email, values.password, values.role)
@@ -36,8 +37,13 @@ const AuthScreens = () => {
             if (data.refreshToken) {
                 localStorage.setItem('refreshToken', data.refreshToken)
             }
-            alert(data.message)
-            navigate("/admin")
+
+            const userRole = data.user.role;
+            if (userRole === "Admin") {
+                navigate("/admin")
+            } else {
+                navigate("/layout")
+            }
         } catch (error) {
             alert(error.responose?.data?.message || "Something went wrong")
         }

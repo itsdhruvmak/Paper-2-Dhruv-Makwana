@@ -1,4 +1,5 @@
 import { GENRES } from "../../../../constants/genres.js";
+import Book from "../../../../database/model/Book.js";
 import { addBook, allBooks, editBook, findBook, removeBook } from "../modules/bookModule.js";
 
 export const createBook = async (req, res) => {
@@ -96,6 +97,85 @@ export const getBook = async (req, res) => {
         const book = await findBook(bookId)
 
         return res.status(200).json({ message: "here's the particular blog", data: book })
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error", error: error.message })
+    }
+}
+
+export const searchBooks = async (req, res) => {
+    try {
+        let { title, author, genre, status, year, logic = "and" } = req.query;
+
+        let conditions = [];
+
+        // Case-insensitive title search
+        if (title) {
+            conditions.push({ title: { $regex: title, $options: "i" } });
+        }
+
+        // Case-insensitive author search
+        if (author) {
+            conditions.push({ author: { $regex: author, $options: "i" } });
+        }
+
+        // Genre (string match)
+        if (genre) {
+            conditions.push({ genre });
+        }
+
+        // Status fix for case sensitivity
+        if (status) {
+            status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+            conditions.push({ status });
+        }
+
+        // Year
+        if (year) {
+            conditions.push({ publicationYear: Number(year) });
+        }
+
+        // No filter → return all
+        if (conditions.length === 0) {
+            const books = await Book.find();
+            return res.status(200).json({ data: books });
+        }
+
+        // Build final query
+        const query = logic === "or"
+            ? { $or: conditions }
+            : { $and: conditions };
+
+        const books = await Book.find(query);
+
+        return res.status(200).json({ data: books });
+
+    } catch (error) {
+        console.log("Search error:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+};
+
+export const bulkDelete = async (req, res) => {
+    try {
+        const userId = req.user.id
+        const userRole = req.user.role
+        const { bookIds } = req.body
+
+        if (userRole !== "Admin") {
+            return res.status(403).json({ message: "Only admin can delete books" })
+        }
+
+        if (!bookIds || !Array.isArray(bookIds) || bookIds.length === 0) {
+            return res.status(400).json({ message: "Book ids must be a non empty array" })
+        }
+
+        const result = await Book.deleteMany({ _id: { $in: bookIds } })
+
+        return res.status(200).json({
+            message: "Books deleted successfully",
+            deletedCount: result.deletedCount
+        })
+
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message })
     }

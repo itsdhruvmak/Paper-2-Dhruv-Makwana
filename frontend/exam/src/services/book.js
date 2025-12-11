@@ -5,7 +5,7 @@ export const createBook = async (data) => {
     return res.data;
 }
 
-export const updateBook = async (data, id) => {
+export const updateBook = async (id, data) => {
     const res = await api.put(`/book/update/${id}`, data)
     return res.data
 }
@@ -22,5 +22,23 @@ export const getBook = async (id) => {
 
 export const allBooks = async () => {
     const res = await api.get("/book/all-books")
+    return res.data
+}
+
+
+export const searchBooks = async (filters) => {
+    const params = new URLSearchParams();
+
+    Object.keys(filters).forEach((key) => {
+        if (filters[key]) {
+            params.append(key, filters[key])
+        }
+    })
+    const res = await api.get(`/book/search?${params.toString()}`)
+    return res.data
+}
+
+export const bulkDeleteBooks = async (bookIds) => {
+    const res = await api.post("/book/bulk-delete", { bookIds })
     return res.data
 }
