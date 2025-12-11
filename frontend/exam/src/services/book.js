@@ -1,27 +1,27 @@
 import api from "./api";
 
 export const createBook = async (data) => {
-    const res = await api.post("/api/book/add-book", data)
+    const res = await api.post("/book/add-book", data)
     return res.data;
 }
 
 export const updateBook = async (id, data) => {
-    const res = await api.put(`/api/book/update/${id}`, data)
+    const res = await api.put(`/book/update/${id}`, data)
     return res.data
 }
 
 export const deleteBook = async (id) => {
-    const res = await api.delete(`/api/book/delete/${id}`)
+    const res = await api.delete(`/book/delete/${id}`)
     return res.data
 }
 
 export const getBook = async (id) => {
-    const res = await api.get(`/api/book/get-book/${id}`)
+    const res = await api.get(`/book/get-book/${id}`)
     return res.data
 }
 
 export const allBooks = async () => {
-    const res = await api.get("/api/book/all-books")
+    const res = await api.get("/book/all-books")
     return res.data
 }
 
@@ -34,11 +34,11 @@ export const searchBooks = async (filters) => {
             params.append(key, filters[key])
         }
     })
-    const res = await api.get(`/api/book/search?${params.toString()}`)
+    const res = await api.get(`/book/search?${params.toString()}`)
     return res.data
 }
 
 export const bulkDeleteBooks = async (bookIds) => {
-    const res = await api.post("/api/book/bulk-delete", { bookIds })
+    const res = await api.post("/book/bulk-delete", { bookIds })
     return res.data
 }
