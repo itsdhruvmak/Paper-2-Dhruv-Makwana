@@ -11,7 +11,7 @@ import {
 const Book = () => {
     const [books, setBooks] = useState([]);
     const [editingId, setEditingId] = useState(null);
-    const [selectedIds, setSelectedIds] = useState([]); // array of selected book ids
+    const [selectedIds, setSelectedIds] = useState([]);
 
     const [form, setForm] = useState({
         title: "",
@@ -22,7 +22,6 @@ const Book = () => {
         isbn: ""
     });
 
-    // Fetch all books
     const fetchBooks = async () => {
         try {
             const res = await allBooks();
@@ -37,15 +36,12 @@ const Book = () => {
         fetchBooks();
     }, []);
 
-    // Handle input
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // Submit (Create / Update)
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
             if (editingId) {
                 await updateBook(editingId, form);
@@ -55,7 +51,6 @@ const Book = () => {
                 alert("Book added");
             }
 
-            // Refresh list
             setForm({
                 title: "",
                 author: "",
@@ -66,14 +61,12 @@ const Book = () => {
             });
             setEditingId(null);
             fetchBooks();
-
         } catch (error) {
             console.log(error);
             alert(error.response?.data?.message || "Error");
         }
     };
 
-    // Edit handler
     const handleEdit = async (id) => {
         try {
             const res = await getBook(id);
@@ -87,20 +80,16 @@ const Book = () => {
                 description: b.description || "",
                 isbn: b.isbn || ""
             });
-
             setEditingId(id);
         } catch (error) {
             console.log(error);
         }
     };
 
-    // Delete single handler
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this book?")) return;
-
         try {
             await deleteBook(id);
-            // remove from selectedIds if present
             setSelectedIds(prev => prev.filter(x => x !== id));
             fetchBooks();
         } catch (error) {
@@ -108,25 +97,16 @@ const Book = () => {
         }
     };
 
-    // Selection handlers for bulk delete
     const toggleSelect = (id) => {
-        setSelectedIds(prev => {
-            if (prev.includes(id)) {
-                return prev.filter(x => x !== id);
-            } else {
-                return [...prev, id];
-            }
-        });
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+        );
     };
 
     const isAllSelected = books.length > 0 && selectedIds.length === books.length;
 
     const toggleSelectAll = () => {
-        if (isAllSelected) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(books.map(b => b._id));
-        }
+        setSelectedIds(isAllSelected ? [] : books.map(b => b._id));
     };
 
     const handleBulkDelete = async () => {
@@ -139,7 +119,7 @@ const Book = () => {
 
         try {
             const res = await bulkDeleteBooks(selectedIds);
-            alert(res.message || `${res.deletedCount || selectedIds.length} books deleted`);
+            alert(res.message || "Books deleted");
             setSelectedIds([]);
             fetchBooks();
         } catch (error) {
@@ -149,76 +129,63 @@ const Book = () => {
     };
 
     return (
-        <div className='min-h-screen p-4'>
-            <div className='flex justify-center items-center'>
-                <form onSubmit={handleSubmit} className='flex flex-col m-6 md:m-10 border-2 border-black p-6 w-full max-w-xl'>
-                    <h3 className='mb-2 text-lg'>{editingId ? "Edit Book" : "Add Book"}</h3>
+        <div className='min-h-screen bg-gray-100 p-6'>
+            {/* Form */}
+            <div className='flex justify-center'>
+                <form
+                    onSubmit={handleSubmit}
+                    className='w-full max-w-xl bg-white rounded-xl shadow-lg p-6 space-y-3'
+                >
+                    <h3 className='text-xl font-semibold mb-2'>
+                        {editingId ? "Edit Book" : "Add Book"}
+                    </h3>
 
-                    <input
-                        name="title"
-                        placeholder="Title"
-                        value={form.title}
-                        onChange={handleChange}
-                        className='border p-2 mb-2'
-                    />
-
-                    <input
-                        name="author"
-                        placeholder="Author"
-                        value={form.author}
-                        onChange={handleChange}
-                        className='border p-2 mb-2'
-                    />
-
-                    <input
-                        name="genre"
-                        placeholder="Genre"
-                        value={form.genre}
-                        onChange={handleChange}
-                        className='border p-2 mb-2'
-                    />
-
-                    <input
-                        name="isbn"
-                        placeholder="ISBN"
-                        value={form.isbn}
-                        onChange={handleChange}
-                        className='border p-2 mb-2'
-                    />
-
-                    <input
-                        name="publicationYear"
-                        placeholder="Publication Year"
-                        value={form.publicationYear}
-                        onChange={handleChange}
-                        className='border p-2 mb-2'
-                    />
+                    {["title", "author", "genre", "isbn", "publicationYear"].map(field => (
+                        <input
+                            key={field}
+                            name={field}
+                            placeholder={field.replace(/([A-Z])/g, " $1")}
+                            value={form[field]}
+                            onChange={handleChange}
+                            className='w-full border rounded-lg px-3 py-2
+                            focus:outline-none focus:ring-2 focus:ring-black'
+                        />
+                    ))}
 
                     <textarea
                         name="description"
                         placeholder="Description"
                         value={form.description}
                         onChange={handleChange}
-                        className='border p-2 mb-2'
-                    ></textarea>
+                        className='w-full border rounded-lg px-3 py-2 min-h-[80px]
+                        focus:outline-none focus:ring-2 focus:ring-black'
+                    />
 
-                    <div className='flex gap-2'>
-                        <button type="submit" className='bg-black text-white px-3 py-1 rounded'>
+                    <div className='flex gap-3 pt-2'>
+                        <button
+                            type="submit"
+                            className='bg-black text-white px-5 py-2 rounded-lg
+                            hover:bg-gray-900 transition'
+                        >
                             {editingId ? "Update" : "Add"}
                         </button>
 
                         {editingId && (
-                            <button type="button" onClick={() => {
-                                setEditingId(null);
-                                setForm({
-                                    title: "",
-                                    author: "",
-                                    genre: "",
-                                    publicationYear: "",
-                                    description: "",
-                                    isbn: ""
-                                });
-                            }} className='px-3 py-1 border rounded'>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setEditingId(null);
+                                    setForm({
+                                        title: "",
+                                        author: "",
+                                        genre: "",
+                                        publicationYear: "",
+                                        description: "",
+                                        isbn: ""
+                                    });
+                                }}
+                                className='border px-5 py-2 rounded-lg hover:bg-gray-100 transition'
+                            >
                                 Cancel
                             </button>
                         )}
@@ -226,48 +193,64 @@ const Book = () => {
                 </form>
             </div>
 
-            {/* Book List + Bulk actions */}
-            <div className='mt-6 max-w-4xl mx-auto'>
-                <div className='flex items-center justify-between mb-3'>
-                    <h3 className='text-lg font-medium'>Book List</h3>
+            {/* Book List */}
+            <div className='mt-10 max-w-4xl mx-auto bg-white rounded-xl shadow p-6'>
+                <div className='flex items-center justify-between mb-4'>
+                    <h3 className='text-lg font-semibold'>Book List</h3>
 
-                    <div className='flex items-center gap-2'>
-                        <label className='flex items-center gap-1'>
+                    <div className='flex items-center gap-3'>
+                        <label className='flex items-center gap-2 text-sm'>
                             <input type="checkbox" checked={isAllSelected} onChange={toggleSelectAll} />
-                            <span className='text-sm'>Select All</span>
+                            Select All
                         </label>
 
                         {selectedIds.length > 0 && (
-                            <button onClick={handleBulkDelete} className='bg-red-600 text-white px-3 py-1 rounded'>
+                            <button
+                                onClick={handleBulkDelete}
+                                className='bg-red-600 text-white px-4 py-1.5 rounded-lg
+                                hover:bg-red-700 transition'
+                            >
                                 Delete Selected ({selectedIds.length})
                             </button>
                         )}
                     </div>
                 </div>
 
-                {books.length === 0 && <p>No books found</p>}
+                {books.length === 0 && (
+                    <p className='text-gray-500 text-sm'>No books found</p>
+                )}
 
-                <ul>
+                <ul className='space-y-3'>
                     {books.map((b) => (
-                        <li key={b._id} className='mb-3 flex items-start gap-3'>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={selectedIds.includes(b._id)}
-                                    onChange={() => toggleSelect(b._id)}
-                                />
-                            </label>
+                        <li
+                            key={b._id}
+                            className='flex items-start gap-3 p-4 border rounded-lg
+                            hover:bg-gray-50 transition'
+                        >
+                            <input
+                                type="checkbox"
+                                checked={selectedIds.includes(b._id)}
+                                onChange={() => toggleSelect(b._id)}
+                            />
 
                             <div className='flex-1'>
-                                <strong>{b.title}</strong> — {b.author} ({b.genre})
+                                <p className='font-semibold'>{b.title}</p>
+                                <p className='text-sm text-gray-600'>
+                                    {b.author} • {b.genre}
+                                </p>
                             </div>
 
-                            <div className='flex items-center gap-2'>
-                                <button onClick={() => handleEdit(b._id)} className='px-2 py-1 border rounded text-sm'>
+                            <div className='flex gap-2'>
+                                <button
+                                    onClick={() => handleEdit(b._id)}
+                                    className='px-3 py-1 text-sm border rounded-lg hover:bg-gray-100'
+                                >
                                     Edit
                                 </button>
-
-                                <button onClick={() => handleDelete(b._id)} className='px-2 py-1 border rounded text-sm'>
+                                <button
+                                    onClick={() => handleDelete(b._id)}
+                                    className='px-3 py-1 text-sm border rounded-lg hover:bg-red-50 text-red-600'
+                                >
                                     Delete
                                 </button>
                             </div>
